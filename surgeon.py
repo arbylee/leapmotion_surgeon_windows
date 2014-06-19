@@ -157,6 +157,26 @@ def click_up(x, y):
     win32api.SetCursorPos((x,y))
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,x,y,0,0)
 
+Z_SPEED = 10
+X_SPEED = 20
+
+def move_left():
+    win32api.SetCursorPos((-X_SPEED,0))
+    win32api.mouse_event(win32con.MOUSEEVENTF_MOVE,-X_SPEED,0,0,0)
+
+def move_right():
+    win32api.SetCursorPos((X_SPEED,0))
+    win32api.mouse_event(win32con.MOUSEEVENTF_MOVE,X_SPEED,0,0,0)
+
+def move_forward():
+    win32api.SetCursorPos((0,-Z_SPEED))
+    win32api.mouse_event(win32con.MOUSEEVENTF_MOVE,0,-Z_SPEED,0,0)
+
+def move_backward():
+    win32api.SetCursorPos((0,Z_SPEED))
+    win32api.mouse_event(win32con.MOUSEEVENTF_MOVE,0,Z_SPEED,0,0)
+
+
 def press(*args):
     '''
     one press, one release.
@@ -179,17 +199,25 @@ class SurgeonListener(Leap.Listener):
 	    position = hand.palm_position
 	    cursor_pos = win32api.GetCursorPos()
 	    cursor_pos = (0,0)
-	    if position.y < 200:
+	    if position.y < 300:
 	        print "Click"
 	        click_down(*cursor_pos)
 	    else:
 	        click_up(*cursor_pos)
 	        
 	    fingers = hand.fingers
-	    if fingers.is_empty:
+	    if len(fingers) < 4:
 	        press('a', 'w', 'e', 'r', 'spacebar')
 	    else:
 	        release('a', 'w', 'e', 'r', 'spacebar')
+	    if position.x < -50:
+	        move_left()
+	    if position.x > 50:
+	        move_right()
+	    if position.z < -50:
+	        move_forward()
+	    if position.z > 50:
+	        move_backward()
 
 def main():
     # Create a sample listener and controller
